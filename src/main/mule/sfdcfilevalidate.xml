@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:sockets="http://www.mulesoft.org/schema/mule/sockets" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:java="http://www.mulesoft.org/schema/mule/java"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/sockets http://www.mulesoft.org/schema/mule/sockets/current/mule-sockets.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="e60f3be0-fc0a-4424-b6f7-7dd85fc2fce2" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="8bdf39a4-5a38-48d4-b02d-49332ae497ba" >
+		<salesforce:basic-connection username="yourname@yourorg.org" password="ABC123" securityToken="ABC123" url="https://login.salesforce.com/services/Soap/u/49.0" />
+	</salesforce:sfdc-config>
+	<flow name="main_preflightFlow" doc:id="dbfcc533-4115-418a-9c78-8d9dbacd5b2c" >
+		<http:listener doc:name="Listener" doc:id="80c2f098-be98-481a-9879-d4cefd43a3da" config-ref="HTTP_Listener_config" path="FileCheck" allowedMethods="GET" />
+		<set-variable value="#[attributes.queryString]" doc:name="Set fileIds Variable from queryString" doc:id="d8478858-3076-4a8c-8ea1-23a5662f8246" variableName="fileIds" />
+		<ee:transform doc:name="Transform fileIds into String Array" doc:id="46fbdaa8-a5c6-461e-8b7b-957f2a55190e">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="fileIds"><![CDATA[%dw 2.0
+output application/json
+---
+vars.fileIds splitBy(/[,]/)]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<set-variable value="#[[]]" doc:name="Set returnList Variable" doc:id="9aec8eea-b393-47f0-aab9-7039fac062f2" variableName="returnList" mimeType="application/java" />
+		<foreach doc:name="For Each file to check" doc:id="765d1212-4020-4466-88a6-d92e1ca4be2b" collection="#[vars.fileIds]" >
+			<set-variable value="" doc:name="Set Variable - fileType" doc:id="d1867527-b84f-4b3a-a57e-4ecb42ecafaa" variableName="fileType" />
+			<set-variable value="#[payload]" doc:name="Set Variable - ContentDocumentId" doc:id="52dacdf7-154c-41eb-83cf-1384a5603f40" variableName="ContentDocumentId" mimeType="application/java"/>
+			<logger level="INFO" doc:name="Logger - ContentDocumentId" doc:id="7cf56392-2313-460b-9328-887ab2c767d4" message="#[vars.ContentDocumentId]"/>
+			<set-variable value="#[import * from dw::core::Strings
+---
+{
+	&quot;Key&quot; : vars.ContentDocumentId replace '&quot;\&quot;' with '' replace  '\&quot;&quot;' with ''
+}]" doc:name="Set Variable - contentVersionQuery" doc:id="4c0d3d95-6711-4d4e-878c-70b90a494000" variableName="contentVersionQuery"/>
+			<logger level="INFO" doc:name="Logger - contentVersionQuery" doc:id="3ce25e80-3e6a-4958-a9e5-f123e9c9309d" message="#[vars.contentVersionQuery]"/>
+			<salesforce:query doc:name="Query from ContentVersion" doc:id="ee5d83c4-3dc8-4751-89d4-4f782e3ad13a" doc:description="SELECT ID, ContentDocumentId, FileExtension, VersionData FROM ContentVersion WHERE ContentDocumentId = @key AND ContentLocation = 'S'" config-ref="Salesforce_Config" target="fileType" >
+				<salesforce:salesforce-query ><![CDATA[SELECT ID, ContentDocumentId, FileExtension FROM ContentVersion WHERE ContentDocumentId = ':Key' AND ContentLocation = 'S']]></salesforce:salesforce-query>
+				<salesforce:parameters ><![CDATA[#[vars.contentVersionQuery]]]></salesforce:parameters>
+			</salesforce:query>
+			<logger level="INFO" doc:name="Logger - fileType" doc:id="7294f805-dc99-44ac-9f41-16987ab38095" message="#[vars.fileType]"/>
+			<set-variable value="" doc:name="Set Variable - fileContent" doc:id="f8febe79-e087-4eef-8973-cd48ff03e170" variableName="fileContent"/>
+			<salesforce:retrieve doc:name="Retrieve from ContentVersion" doc:id="c81fc5e7-910a-444a-b9c8-63eabc40f987" config-ref="Salesforce_Config" type="ContentVersion" target="fileContent">
+				<salesforce:retrieve-request ><![CDATA[#[{
+  "Fields": [
+    "Id", "ContentDocumentId", "VersionData", "Title", "FileExtension", "ContentSize"
+  ],
+  "Ids": [ 
+    vars.fileType[0].Id
+  ]
+}]]]></salesforce:retrieve-request>
+			</salesforce:retrieve>
+			<set-variable value="#[%dw 2.0
+---
+vars.fileContent.VersionData[0] as String]" doc:name="Set Variable fileContentBinary" doc:id="c1886881-4fc5-4617-a668-8ace10646dba" variableName="fileContentBinary"/>
+			<java:invoke-static doc:name="Invoke static file check" doc:id="f9d9316a-fdad-41e9-9552-969337c9a014" class="sfdcfilevalidate.FileCheckPdf" outputMimeType="application/java" target="fileResult" method="CheckFile(java.lang.String,java.lang.String,java.lang.String,java.lang.String)">
+				<java:args ><![CDATA[#[%dw 2.0
+---
+{ contentVersionId: vars.fileContent.Id[0] as String, contentDocumentId: vars.fileContent.ContentDocumentId[0] as String, fileName: vars.fileContent.Title[0], fileContentBase64: vars.fileContentBinary }]]]></java:args>
+			</java:invoke-static>
+			<ee:transform doc:name="Add fileCheck result to returnList" doc:id="35c5221d-b3e6-4c25-b115-63b26614c48b" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+vars.returnList + vars.fileResult
+]]></ee:set-payload>
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="returnList" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.returnList + vars.fileResult]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</foreach>
+		<set-payload value="#[vars.returnList]" doc:name="Set Payload as returnList" doc:id="6695580f-0eea-4aba-8a7f-461b1e03d5f3" />
+		<ee:transform doc:name="Transform payload into JSON" doc:id="277b9a47-b1df-450f-92a6-4dd81fdce529" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+items: payload map ((item, index) -> {
+      details: item.details,
+      fileName: item.fileName,
+      contentVersionId: item.contentVersionId,
+      contentDocumentId: item.contentDocumentId,
+      dateTimeOfCheck: item.dateTimeOfCheck,
+	  status: item.status
+   }
+)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger final Payload" doc:id="c5082152-8e61-49e2-b4d1-43578fcd0a53" message="STEP2 : #[payload]" />
+	</flow>
+</mule>

@@ -1,0 +1,16 @@
+package sfdcfilevalidate;
+
+/**
+ * @author Andrew Whitten
+ *
+ */
+public enum FileResultStatus {
+
+	NONE,
+	FILE_CHECK_SUCCEED,
+	FILE_CHECK_FAILED,
+	FILE_CHECK_FAILED_PASSWORD_PROTECTED,
+	FILE_CHECK_FAILED_INCOMPATIABLE_TYPE,
+	FILE_CHECK_FAILED_UNKNOWN_TYPE,
+	FILE_CHECK_FAILED_VALIDATION
+}
