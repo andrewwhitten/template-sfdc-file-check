@@ -15,5 +15,5 @@ Flow x: more examples to come
 
 # Notes
 
-* PDF password validation comes courtesy of <A href="https://pdfbox.apache.org/">Apache PDF Box</A> that can 
+* PDF password validation comes courtesy of <A href="https://pdfbox.apache.org/">Apache PDF Box</A> that has a lot of functionality around PDF formattiong, although at this point I'm only intereted if I can read the PDF or not.
 * I'm not sure what the size limit is, although I was fine up to 17MB so far. 
