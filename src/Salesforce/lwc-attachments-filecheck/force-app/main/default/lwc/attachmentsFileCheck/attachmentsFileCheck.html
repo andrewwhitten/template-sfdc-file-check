@@ -1,0 +1,48 @@
+<template>
+    <div class="slds-m-top_small slds-m-bottom_medium">
+
+        <template if:true={isLoading} >
+
+            <div class="exampleHolder">
+                <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+            </div>
+
+        </template>
+
+        <lightning-datatable
+            key-field="id"
+            data={records}
+            columns={columns}
+            hide-checkbox-column>
+        </lightning-datatable>  
+
+        <br>
+
+        <lightning-button variant="brand" label="Check Files" title="Primary action"  class="slds-m-left_x-small" onclick={handleClick}>
+        </lightning-button>
+
+        <lightning-button variant="brand" label={showWebServiceResponseButtonLabel} title={showWebServiceResponseButtonLabel}  class="slds-m-left_x-small" onclick={handleClickWebServiceResponse}>
+        </lightning-button>
+
+        <br>    
+        
+        <template if:true={showWebServiceResponse}>
+
+            <br>
+            
+            <lightning-datatable
+                key-field="contentDocumentId"
+                data={postCheckRecords}
+                columns={postCheckColumns}
+                hide-checkbox-column>
+            </lightning-datatable> 
+
+            <br>
+
+            <div class="slds-m-vertical_medium">
+                <p>Duration of file checks: {duration} milliseconds</p>
+            </div>
+
+        </template>
+    </div>    
+</template>

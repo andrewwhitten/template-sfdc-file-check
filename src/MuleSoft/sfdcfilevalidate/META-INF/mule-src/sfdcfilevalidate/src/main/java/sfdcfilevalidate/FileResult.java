@@ -19,4 +19,6 @@ public class FileResult {
 	public String contentDocumentId = "";
 	
 	public LocalDateTime dateTimeOfCheck = LocalDateTime.now();
+	
+	public String fileType = "";
 }

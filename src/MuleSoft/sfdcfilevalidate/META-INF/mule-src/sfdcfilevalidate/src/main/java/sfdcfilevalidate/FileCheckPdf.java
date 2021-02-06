@@ -19,7 +19,7 @@ public class FileCheckPdf {
 
 	public static FileResult CheckFile(String contentVersionId, String contentDocumentId,  String fileName, String fileContentBase64 ) {
 		
-		// Contruct the file result
+		// Construct the file result
 		FileResult fileResult = new FileResult();
 		fileResult.fileName = fileName;
 		fileResult.contentDocumentId = contentDocumentId;

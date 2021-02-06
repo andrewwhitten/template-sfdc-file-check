@@ -1,0 +1,27 @@
+{
+  "configs": [
+    "sfdcfilevalidate.xml"
+  ],
+  "secureProperties": [],
+  "redeploymentEnabled": true,
+  "name": "com.mycompany:sfdcfilevalidate:1.0.0-SNAPSHOT",
+  "minMuleVersion": "4.3.0",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedPackages": [
+        "sfdcfilevalidate"
+      ],
+      "exportedResources": [
+        "log4j2.xml",
+        "keystore.jks",
+        "sfdcfilevalidate.xml"
+      ]
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}
