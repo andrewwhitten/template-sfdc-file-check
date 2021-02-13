@@ -1,6 +1,18 @@
 <template>
     <div class="slds-m-top_small slds-m-bottom_medium">
 
+        <template if:false={records}>
+
+            <BR/>
+            <lightning-dynamic-icon
+                type="eq"
+                option="play"
+                alternative-text="Loading">
+            </lightning-dynamic-icon>
+            {loadingMessageLabel} 
+
+        </template>
+
         <template if:true={isLoading} >
 
             <div class="exampleHolder">

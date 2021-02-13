@@ -11,7 +11,7 @@
     <targetConfigs>
         <targetConfig targets="lightning__AppPage">
             <supportedFormFactors>
-                <supportedFormFactor type="Large" />
+                <supportedFormFactor type="Large" /> 
                 <supportedFormFactor type="Small" />
             </supportedFormFactors>
         </targetConfig>

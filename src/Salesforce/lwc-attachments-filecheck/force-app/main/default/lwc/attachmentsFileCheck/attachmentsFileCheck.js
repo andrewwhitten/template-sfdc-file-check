@@ -8,18 +8,7 @@ const columns = [
     { label: '', initialWidth: 150, cellAttributes: { iconName: { fieldName: 'fileTypeIcon' }, iconLabel: { fieldName :'fileTypeIconLabel'} }},
     { label: 'Title', fieldName: 'Title', initialWidth: 200},
     // { label: 'Content Document Id', fieldName: 'ContentDocumentId' }, // For debugging purpose
-    // { label: 'Size', fieldName: 'ContentSize', type: 'number', initialWidth: 80},
-    // { label: 'Type', fieldName: 'FileType', type: 'text', initialWidth: 100},
-    /* { label: 'Created', fieldName: 'CreatedDate', type: 'date', initialWidth: 200, typeAttributes:{
-        weekday: "short",
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit"
-    }},*/
     { label: 'DQ Result', initialWidth: 250, cellAttributes: { iconName: { fieldName: 'dqCheckIcon' }, iconLabel: { fieldName :'dqCheckIconLabel'} }},
-    // { label: 'DQ Result', fieldName: 'Data_Quality_Check__c', type: 'text'},
     { label: 'DQ Run', fieldName: 'Data_Quality_Check_Date_Time__c', type: 'date', typeAttributes:{
         weekday: "short",
         year: "numeric",
@@ -30,7 +19,7 @@ const columns = [
     }},
 ];
 
-// Columns used in table showing web service results
+// Columns used in table showing web service results - Info only, not required for file quality check
 const postCheckColumns = [
     { label: 'File Name', fieldName: 'fileName'},
     { label: 'Content Document Id', fieldName: 'contentDocumentId' },
@@ -41,24 +30,30 @@ const postCheckColumns = [
 ];
 
 export default class AttachmentsFileCheck extends LightningElement {
-    @api recordId = '500B00000062F2bIAE'; // Default to test record in my org for testing on local web server
+    @api recordId = '500B00000062F2bIAE'; // Default to test record (Case, Account, etc) in my org for testing on local web server
 
-    records;                // File associated with record
+    records;                // Files associated with record
     error;                  // Error mesage back from getRelatedDocuments Apex call
     postCheckRecords;       // Records from the file analysis web service call
     isLoading = false;      // Controls the spinner control
     duration = 0;                       // Length of asynchronous web service execution
     showWebServiceResponse = false;     // Hide the web service response by default
     showWebServiceResponseButtonLabel = 'Show Web Service Response';    // Set the label of the web response show button
+    loadingMessageLabel = 'Loading...';
 
     // Retrieve the Content Version records
     @wire(getRelatedDocuments, {recordId: '$recordId'}) documents ({ error, data }) {
 
         if (data) {
+
+            this.loadingMessageLabel = 'No file records found.';
+
             this.columns = columns;
             this.records = this.augmentReturnData(data); 
             this.error = undefined;
+
         } else if (error) {
+
             this.error = error;
             this.records = undefined;
         }
@@ -67,7 +62,7 @@ export default class AttachmentsFileCheck extends LightningElement {
     // Add additional elements to display icons and other formatting in datatable
     augmentReturnData(dataList) {
 
-        var records = [];           // The new Array to build
+        var records = [];                   // The new Array to build
 
         // Loop through rows of ContentVersion list
         for( let row of dataList) {
@@ -88,14 +83,14 @@ export default class AttachmentsFileCheck extends LightningElement {
         
         var params = this.buildIdString();
 
-        this.handleFetch(params).then(result => {
+        this.handleFetch(params).then(result => { 
 
             // NOTE: It would in theory be better to use the refreshApex call, however that will 
             // only retrieve the cached data
             getRelatedDocumentsWithoutCache({ recordId: this.recordId }).then((data) => {
 
                 if(data) {
-                    this.records = this.augmentReturnData(data);;
+                    this.records = this.augmentReturnData(data);
                 } 
             })
         });
@@ -113,7 +108,7 @@ export default class AttachmentsFileCheck extends LightningElement {
         }
     }
 
-    // Build parameter string to send to service
+    // Build a parameter string of all DocumentIds to send to service
     buildIdString() {
 
         var returnString = '';

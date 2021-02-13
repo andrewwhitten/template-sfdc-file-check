@@ -1,4 +1,6 @@
-
+/***
+ * Seperate file for this long function
+ */
 function setIconAndLabel(item) {
 
     // Create icon for file type
@@ -58,20 +60,32 @@ function setIconAndLabel(item) {
             item.fileTypeIconLabel = 'Unknown';
         }
 
-                    // Create icon and text for DQ result
-                    if (item.Data_Quality_Check__c === 'FILE_CHECK_SUCCEED' ) {
-                        item.dqCheckIcon = 'action:approval';  
-                        item.dqCheckIconLabel = 'Valid';
-                    } else if (item.Data_Quality_Check__c === 'FILE_CHECK_FAILED_PASSWORD_PROTECTED' ) {
-                        item.dqCheckIcon = 'action:new_custom77';  
-                        item.dqCheckIconLabel = 'Password Protected';
-                    } else if (item.Data_Quality_Check__c === 'FILE_CHECK_FAILED_UNSUPPORTED_TYPE' ) {
-                        item.dqCheckIcon = 'action:question_post_action';
-                        item.dqCheckIconLabel = 'Unsupported data quality type';
-                    } else {
-                        item.dqCheckIcon = 'action:close';
-                        item.dqCheckIconLabel = 'Failed';
-                    }
+        // Create icon and text for DQ result
+        if (item.Data_Quality_Check__c === 'FILE_CHECK_SUCCEED' ) {
+
+            item.dqCheckIcon = 'action:approval';  
+            item.dqCheckIconLabel = 'Valid';
+
+        } else if (item.Data_Quality_Check__c === 'FILE_CHECK_FAILED_PASSWORD_PROTECTED' ) {
+
+            item.dqCheckIcon = 'action:new_custom77';  
+            item.dqCheckIconLabel = 'Password Protected';
+
+        } else if (item.Data_Quality_Check__c === 'FILE_CHECK_FAILED_UNSUPPORTED_TYPE' ) {
+
+            item.dqCheckIcon = 'action:question_post_action';
+            item.dqCheckIconLabel = 'Unsupported data quality type';
+
+        } else if (item.Data_Quality_Check__c === '' ) {
+
+            item.dqCheckIcon = 'action:question_post_action';
+            item.dqCheckIconLabel = 'Unchecked';
+
+        } else {
+            
+            item.dqCheckIcon = 'action:close';
+            item.dqCheckIconLabel = 'Unchecked'; 
+        }
 
     return item;
 }
