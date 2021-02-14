@@ -65,5 +65,8 @@ You don't have to call this process from Salesforce - just call the service from
       <li>Other file types and other types of file quality detection can be added to the MuleSoft solution just by adding a new Java class and libraries </li>
     </ul>
   </li>
-  <li>The next step is to extend this to determine issues when users uploads a file through the UI. For example, rejecting an upload of an encrypted PDF</li><li>I'm not so experienced with AnyPoint, so my Flow is rather long. I'll also look to break that up in anticipation of other services that will come and reuse common parts</li>
+  <li>The next step is to extend this to determine issues when users uploads a file through the UI. For example, rejecting an upload of an encrypted PDF</li>
+  <li>I'm not so experienced with AnyPoint, so my Flow is rather long. I'll also look to break that up in anticipation of other services that will come and reuse common parts</li>
+  <li>The next step is to extend this to determine issues when users uploads a file through the UI. For example, rejecting an upload of an encrypted PDF</li>
+  <li>I should also create a 'how to set up' page with detailed instructions. Please ping me if that is of interest.</li>
 </ol>
